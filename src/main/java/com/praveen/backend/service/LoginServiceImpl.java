@@ -12,31 +12,49 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public User login(String email, String password) {
 
-        // Validate email
+        // Validate Email
         if (!ValidationUtil.isValidEmail(email)) {
+
+            System.out.println("Invalid Email");
+
             return null;
+
         }
 
-        // Validate password
+        // Validate Password
         if (!ValidationUtil.isValidPassword(password)) {
+
+            System.out.println("Invalid Password");
+
             return null;
+
         }
 
-        // Fetch user
+        // Fetch User
         User user = userDAO.getUserByEmail(email);
 
         if (user == null) {
+
+            System.out.println("User Not Found");
+
             return null;
+
         }
 
-        // Verify password
+        // Verify Password
         if (!PasswordUtil.verifyPassword(password, user.getPasswordHash())) {
+
+            System.out.println("Incorrect Password");
+
             return null;
+
         }
 
-        // Update last login (we'll implement this method next)
-        // userDAO.updateLastLogin(user.getUserId());
+        // Update Last Login Time
+        userDAO.updateLastLogin(user.getUserId());
 
         return user;
+
     }
+
 }
