@@ -6,7 +6,10 @@ import com.praveen.backend.service.LoginServiceImpl;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -25,24 +28,44 @@ public class LoginServlet extends HttpServlet {
 
         User user = loginService.login(email, password);
 
-        response.setContentType("text/plain");
-
         if (user != null) {
 
-            HttpSession session = request.getSession(true);
+            HttpSession session = request.getSession();
 
-            session.setAttribute("loggedInUser", user);
+            session.setAttribute("userId", user.getUserId());
+            session.setAttribute("userName",
+                    user.getFirstName() + " " + user.getLastName());
+            session.setAttribute("email", user.getEmail());
+            session.setAttribute("role", user.getRole().getRoleName());
 
-            session.setAttribute("role",
-                    user.getRole().getRoleName());
+            String role = user.getRole().getRoleName();
 
-            response.getWriter().println("LOGIN SUCCESS");
+            switch (role) {
+
+                case "ADMIN":
+                    response.sendRedirect("admin/dashboard.jsp");
+                    break;
+
+                case "HR":
+                    response.sendRedirect("hr/dashboard.jsp");
+                    break;
+
+                case "MANAGER":
+                    response.sendRedirect("manager/dashboard.jsp");
+                    break;
+
+                case "EMPLOYEE":
+                    response.sendRedirect("employee/dashboard.jsp");
+                    break;
+
+                default:
+                    response.sendRedirect("login.jsp?error=role");
+                    break;
+            }
 
         } else {
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
-            response.getWriter().println("LOGIN FAILED");
+            response.sendRedirect("login.jsp?error=invalid");
 
         }
     }
