@@ -12,7 +12,7 @@ import java.util.List;
 public class UserDAO {
 
     /**
-     * Converts a ResultSet row into a User object.
+     * Maps a ResultSet row to a User object.
      */
     private User mapUser(ResultSet rs) throws SQLException {
 
@@ -46,7 +46,6 @@ public class UserDAO {
 
     /**
      * Fetch user by email.
-     * Used during login.
      */
     public User getUserByEmail(String email) {
 
@@ -65,31 +64,26 @@ public class UserDAO {
 
         try (
                 Connection connection = DBConnection.getConnection();
-                PreparedStatement preparedStatement =
-                        connection.prepareStatement(sql)
+                PreparedStatement ps = connection.prepareStatement(sql)
         ) {
 
-            preparedStatement.setString(1, email);
+            ps.setString(1, email);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
-            if (resultSet.next()) {
-
-                return mapUser(resultSet);
-
+            if (rs.next()) {
+                return mapUser(rs);
             }
 
         } catch (SQLException e) {
-
             e.printStackTrace();
-
         }
 
         return null;
     }
 
     /**
-     * Fetch user by user ID.
+     * Fetch user by ID.
      */
     public User getUserById(int userId) {
 
@@ -108,24 +102,19 @@ public class UserDAO {
 
         try (
                 Connection connection = DBConnection.getConnection();
-                PreparedStatement preparedStatement =
-                        connection.prepareStatement(sql)
+                PreparedStatement ps = connection.prepareStatement(sql)
         ) {
 
-            preparedStatement.setInt(1, userId);
+            ps.setInt(1, userId);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
-            if (resultSet.next()) {
-
-                return mapUser(resultSet);
-
+            if (rs.next()) {
+                return mapUser(rs);
             }
 
         } catch (SQLException e) {
-
             e.printStackTrace();
-
         }
 
         return null;
@@ -136,7 +125,7 @@ public class UserDAO {
      */
     public List<User> getAllUsers() {
 
-        List<User> userList = new ArrayList<>();
+        List<User> users = new ArrayList<>();
 
         String sql = """
                 SELECT
@@ -153,29 +142,135 @@ public class UserDAO {
 
         try (
                 Connection connection = DBConnection.getConnection();
-                PreparedStatement preparedStatement =
-                        connection.prepareStatement(sql);
-                ResultSet resultSet =
-                        preparedStatement.executeQuery()
+                PreparedStatement ps = connection.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()
         ) {
 
-            while (resultSet.next()) {
-
-                userList.add(mapUser(resultSet));
-
+            while (rs.next()) {
+                users.add(mapUser(rs));
             }
 
         } catch (SQLException e) {
-
             e.printStackTrace();
-
         }
 
-        return userList;
+        return users;
     }
 
     /**
-     * Update user's last login time.
+     * Save a new user.
+     */
+    public boolean saveUser(User user) {
+
+        String sql = """
+                INSERT INTO users
+                (
+                    employee_code,
+                    first_name,
+                    last_name,
+                    email,
+                    password_hash,
+                    phone,
+                    role_id,
+                    department_id,
+                    status,
+                    joining_date
+                )
+                VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (
+                Connection connection = DBConnection.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
+
+            ps.setString(1, user.getEmployeeCode());
+            ps.setString(2, user.getFirstName());
+            ps.setString(3, user.getLastName());
+            ps.setString(4, user.getEmail());
+            ps.setString(5, user.getPasswordHash());
+            ps.setString(6, user.getPhone());
+            ps.setInt(7, user.getRole().getRoleId());
+            ps.setInt(8, user.getDepartment().getDepartmentId());
+            ps.setString(9, user.getStatus());
+            ps.setDate(10, user.getJoiningDate());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Update an existing user.
+     */
+    public boolean updateUser(User user) {
+
+        String sql = """
+                UPDATE users
+                SET
+                    first_name = ?,
+                    last_name = ?,
+                    email = ?,
+                    phone = ?,
+                    role_id = ?,
+                    department_id = ?,
+                    status = ?
+                WHERE user_id = ?
+                """;
+
+        try (
+                Connection connection = DBConnection.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
+
+            ps.setString(1, user.getFirstName());
+            ps.setString(2, user.getLastName());
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getPhone());
+            ps.setInt(5, user.getRole().getRoleId());
+            ps.setInt(6, user.getDepartment().getDepartmentId());
+            ps.setString(7, user.getStatus());
+            ps.setInt(8, user.getUserId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Delete a user.
+     */
+    public boolean deleteUser(int userId) {
+
+        String sql = "DELETE FROM users WHERE user_id = ?";
+
+        try (
+                Connection connection = DBConnection.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, userId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Update last login timestamp.
      */
     public boolean updateLastLogin(int userId) {
 
@@ -187,18 +282,15 @@ public class UserDAO {
 
         try (
                 Connection connection = DBConnection.getConnection();
-                PreparedStatement preparedStatement =
-                        connection.prepareStatement(sql)
+                PreparedStatement ps = connection.prepareStatement(sql)
         ) {
 
-            preparedStatement.setInt(1, userId);
+            ps.setInt(1, userId);
 
-            return preparedStatement.executeUpdate() > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-
             e.printStackTrace();
-
         }
 
         return false;
