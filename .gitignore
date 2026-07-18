@@ -37,3 +37,15 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Logs
+*.log
+
+# Windows
+Thumbs.db
+
+# Environment
+.env
+
+# Temporary files
+*.tmp
