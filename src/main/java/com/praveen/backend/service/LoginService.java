@@ -1,5 +1,9 @@
 package com.praveen.backend.service;
 
-public class LoginService {
-    
+import com.praveen.backend.model.User;
+
+public interface LoginService {
+
+    User login(String email, String password);
+
 }
