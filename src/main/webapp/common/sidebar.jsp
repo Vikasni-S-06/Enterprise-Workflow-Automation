@@ -36,7 +36,7 @@
 
         <li>
 
-            <a href="<%=request.getContextPath()%>/admin/departments.jsp">
+            <a href="<%=request.getContextPath()%>/departments">
 
                 <i class="fa-solid fa-building"></i>
 
@@ -88,4 +88,4 @@
 
 <div class="main-content">
 
-<%@ include file="navbar.jsp" %>
+<%@ include file="navbar.jsp"%>
