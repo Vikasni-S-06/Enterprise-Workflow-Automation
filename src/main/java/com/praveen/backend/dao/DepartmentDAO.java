@@ -1,6 +1,6 @@
 package com.praveen.backend.dao;
 
-import com.praveen.backend.model.Role;
+import com.praveen.backend.model.Department;
 import com.praveen.backend.util.DBConnection;
 
 import java.sql.Connection;
@@ -9,16 +9,16 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RoleDAO {
+public class DepartmentDAO {
 
-    public List<Role> getAllRoles() {
+    public List<Department> getAllDepartments() {
 
-        List<Role> roles = new ArrayList<>();
+        List<Department> departments = new ArrayList<>();
 
         String sql = """
                 SELECT *
-                FROM roles
-                ORDER BY role_name
+                FROM departments
+                ORDER BY department_name
                 """;
 
         try (
@@ -31,12 +31,12 @@ public class RoleDAO {
 
             while (rs.next()) {
 
-                Role role = new Role();
+                Department department = new Department();
 
-                role.setRoleId(rs.getInt("role_id"));
-                role.setRoleName(rs.getString("role_name"));
+                department.setDepartmentId(rs.getInt("department_id"));
+                department.setDepartmentName(rs.getString("department_name"));
 
-                roles.add(role);
+                departments.add(department);
 
             }
 
@@ -46,7 +46,7 @@ public class RoleDAO {
 
         }
 
-        return roles;
+        return departments;
 
     }
 

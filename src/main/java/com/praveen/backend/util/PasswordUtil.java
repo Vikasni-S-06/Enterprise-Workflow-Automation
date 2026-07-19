@@ -28,4 +28,9 @@ public class PasswordUtil {
 
     }
 
+    public static boolean checkPassword(String password, String passwordHash) {
+        
+        throw new UnsupportedOperationException("Unimplemented method 'checkPassword'");
+    }
+
 }
